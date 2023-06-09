@@ -11,13 +11,6 @@ header {
     justify-content: space-between;
     padding: 10px;
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Montserrat&display=swap');
-
-body {
-    font-family: 'Montserrat', sans-serif;
-}
-
 p {
     color: #acafac;
     font-weight: bold;
@@ -112,9 +105,9 @@ li {
   }
 
   .logo img {
-    height: 50px;
-    width: 50px;
-    padding: 0px;
+    height: 60px;
+    width: 60px;
+    padding: 5px;
     position: absolute;
     opacity: 0;
     animation-name: fade-in-out;
@@ -160,7 +153,7 @@ li {
     background-image: url(assets/FUNDO.jpg);
     background-size: cover;
     background-position: center;
-    padding: 20px; /* Adicionei um espaçamento interno para melhor visualização */
+    padding: 40px; /* Adicionei um espaçamento interno para melhor visualização */
     padding-bottom: 1200px;
 }
 
