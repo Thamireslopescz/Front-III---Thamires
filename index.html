@@ -12,25 +12,18 @@
 <body>
 <header>
     <div class="logo">
-        <a href="https://rickandmortyapi.com/"><img src="/assets/logo.png" alt="Logo"></a>
+        <a href="https://rickandmortyapi.com/"><img src="/assets/RICK_MORTY_ICON.png" alt="Logo"></a>
     </div>
 </header>
-
 <h1>API de Rick and Morty</h1>
-
 <div class="search">
     <input type="text" id="searchInput" placeholder="Digite sua pesquisa...">
     <button onclick="searchCharacters()"><i class="bi bi-search"></i></button>
 </div>
-
-<div class="card-container" id="cardContainer"></div>
-
-<div id="pagination"></div>
-
-<div class="image-before-footer">
-    <img src="./assets/rick-and-morty-portal-shoes-white-clothing-zavvi-23.png" alt="Imagem RM">
+<div>
+    <div class="card-container" id="cardContainer"></div>
 </div>
-
+<div id="pagination"></div>
 <footer class="footer">
     <ul>
         <li>
@@ -45,30 +38,29 @@
     </ul>
     <span class="estilo"> DESENVOLVIDO POR <a href="https://github.com/Thamireslopescz">THAMIRES LOPES</a> EM 2023</span>
 </footer>
-
+<div id="characterModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="modalData"></div>
+    </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
+    function changeColors() {
+    const paragraphs = document.querySelectorAll('.modal-content p');
+    const colors = ['#a9d3e9', '#f4ee74', '#736020', '#26cb37', '#000d03'];
+
+    paragraphs.forEach(function (paragraph) {
+      const randomColor = colors[Math.floor(Math.random() * colors.length)];
+      paragraph.style.color = randomColor;
+    });
+  }
+
+  setInterval(changeColors, 2000);
+
     let currentPage = 1;
     let totalPages = 1;
-
-    function getRandomCharacters() {
-  const apiUrl = 'https://rickandmortyapi.com/api/character/random';
-
-  axios.get(apiUrl)
-    .then(function (response) {
-      const character = response.data;
-      displayCharacters([character]); // Exibe o personagem em uma matriz para manter a consistência com a função displayCharacters
-    })
-    .catch(function (error) {
-      console.log(error);
-    });
-}
-
-
-// Chame a função getRandomCharacters no carregamento inicial da página
-getRandomCharacters();
-
-
+    const cardsPerPage = 6;
 
     function searchCharacters() {
         const searchInput = document.getElementById('searchInput').value;
@@ -91,7 +83,11 @@ getRandomCharacters();
         const cardContainer = document.getElementById('cardContainer');
         cardContainer.innerHTML = '';
 
-        characters.forEach(function (character) {
+        const startIndex = (currentPage - 1) * cardsPerPage;
+        const endIndex = startIndex + cardsPerPage;
+        const charactersToDisplay = characters.slice(startIndex, endIndex);
+
+        charactersToDisplay.forEach(function (character) {
             const card = document.createElement('article');
             card.classList.add('card');
 
@@ -141,43 +137,104 @@ getRandomCharacters();
 
             card.appendChild(cardText);
             cardContainer.appendChild(card);
+
+            // Adiciona um evento de clique ao card para abrir o modal
+            card.addEventListener('click', function () {
+                openModal(character);
+            });
         });
     }
+    
 
-    function updateCounts() {
-  axios.all([
-    axios.get('https://rickandmortyapi.com/api/character'),
-    axios.get('https://rickandmortyapi.com/api/location'),
-    axios.get('https://rickandmortyapi.com/api/episode')
-  ])
-    .then(axios.spread(function (characterResponse, locationResponse, episodeResponse) {
-      const characterCount = characterResponse.data.info.count;
-      const locationCount = locationResponse.data.info.count;
-      const episodeCount = episodeResponse.data.info.count;
+    function openModal(character) {
+        const modal = document.getElementById('characterModal');
+        const modalData = document.getElementById('modalData');
+        modalData.innerHTML = '';
 
-      document.getElementById('characterCount').textContent = `PERSONAGENS: ${characterCount}`;
-      document.getElementById('locationCount').textContent = `LOCALIZAÇÕES: ${locationCount}`;
-      document.getElementById('episodeCount').textContent = `EPISÓDIOS: ${episodeCount}`;
-    }))
-    .catch(function (error) {
-      console.log(error);
-    });
-}
+        const name = document.createElement('h2');
+        name.textContent = character.name;
+        modalData.appendChild(name);
 
-// Chame a função updateCounts no carregamento inicial da página
-updateCounts();
+        const image = document.createElement('img');
+        image.src = character.image;
+        image.alt = character.name;
+        modalData.appendChild(image);
 
+        const status = document.createElement('h4');
+        status.innerHTML = `<span class="circle ${getStatusColor(character.status)}"></span>${character.status} - ${character.species}`;
+        modalData.appendChild(status);
 
-    function searchLocations() {
-        axios.get('https://rickandmortyapi.com/api/location')
+        const lastLocationLabel = document.createElement('p');
+        lastLocationLabel.textContent = 'Última localização conhecida:';
+        modalData.appendChild(lastLocationLabel);
+
+        const lastLocation = document.createElement('p');
+        axios.get(character.location.url)
             .then(function (response) {
-                const locationCount = response.data.info.count;
-                document.getElementById('locationCount').textContent = `LOCALIZAÇÕES: ${locationCount}`;
+                lastLocation.textContent = response.data.name;
             })
             .catch(function (error) {
                 console.log(error);
             });
+        modalData.appendChild(lastLocation);
+
+        const lastSeenLabel = document.createElement('p');
+        lastSeenLabel.textContent = 'Visto a última vez em:';
+        modalData.appendChild(lastSeenLabel);
+
+        const lastSeen = document.createElement('p');
+        axios.get(character.episode[character.episode.length - 1])
+            .then(function (response) {
+                lastSeen.textContent = response.data.name;
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+        modalData.appendChild(lastSeen);
+
+        modal.style.display = 'block';
+
+        // Adiciona um evento de clique ao botão de fechar o modal
+        const closeButton = document.getElementsByClassName('close')[0];
+        closeButton.addEventListener('click', function () {
+            closeModal();
+        });
+
+        // Fecha o modal ao clicar fora do conteúdo do modal
+        window.addEventListener('click', function (event) {
+            if (event.target === modal) {
+                closeModal();
+            }
+        });
     }
+
+    function closeModal() {
+        const modal = document.getElementById('characterModal');
+        modal.style.display = 'none';
+    }
+
+    function updateCounts() {
+        axios.all([
+            axios.get('https://rickandmortyapi.com/api/character'),
+            axios.get('https://rickandmortyapi.com/api/location'),
+            axios.get('https://rickandmortyapi.com/api/episode')
+        ])
+            .then(axios.spread(function (characterResponse, locationResponse, episodeResponse) {
+                const characterCount = characterResponse.data.info.count;
+                const locationCount = locationResponse.data.info.count;
+                const episodeCount = episodeResponse.data.info.count;
+
+                document.getElementById('characterCount').textContent = `PERSONAGENS: ${characterCount}`;
+                document.getElementById('locationCount').textContent = `LOCALIZAÇÕES: ${locationCount}`;
+                document.getElementById('episodeCount').textContent = `EPISÓDIOS: ${episodeCount}`;
+            }))
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+    // Chame a função updateCounts no carregamento inicial da página
+    updateCounts();
 
     function getStatusColor(status) {
         switch (status) {
@@ -226,7 +283,48 @@ updateCounts();
         });
         return button;
     }
-</script>
 
+    window.addEventListener('scroll', function() {
+    const scrollButton = document.getElementById('scrollButton');
+    if (document.documentElement.scrollTop > 200) {
+        scrollButton.classList.add('show');
+    } else {
+        scrollButton.classList.remove('show');
+    }
+});
+
+function scrollToTop() {
+    window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    });
+}
+
+function scrollToBottom() {
+    window.scrollTo({
+        top: document.documentElement.scrollHeight,
+        behavior: 'smooth'
+    });
+}
+
+    // Função para obter 6 personagens aleatórios
+    function getRandomCharacters() {
+        const randomPage = Math.floor(Math.random() * totalPages) + 1;
+        const apiUrl = `https://rickandmortyapi.com/api/character?page=${randomPage}`;
+
+        axios.get(apiUrl)
+            .then(function (response) {
+                const characters = response.data.results;
+                displayCharacters(characters);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+    }
+
+    // Chame a função getRandomCharacters no carregamento inicial da página
+    getRandomCharacters();
+</script>
+<button id="scrollButton" onclick="scrollToTop()"><i class="bi bi-arrow-up"></i></button>
 </body>
 </html>
