@@ -22,8 +22,8 @@
 </div>
 <div class="container">
     <div class="card-container" id="cardContainer"></div>
-  </div>
-    
+</div>
+
 <div id="pagination"></div>
 <footer class="footer">
     <ul>
@@ -48,16 +48,16 @@
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script>
     function changeColors() {
-    const paragraphs = document.querySelectorAll('.modal-content p');
-    const colors = ['#a9d3e9', '#f4ee74', '#736020', '#26cb37', '#000d03'];
+        const paragraphs = document.querySelectorAll('.modal-content p');
+        const colors = ['#a9d3e9', '#f4ee74', '#736020', '#26cb37', '#000d03'];
 
-    paragraphs.forEach(function (paragraph) {
-      const randomColor = colors[Math.floor(Math.random() * colors.length)];
-      paragraph.style.color = randomColor;
-    });
-  }
+        paragraphs.forEach(function (paragraph) {
+            const randomColor = colors[Math.floor(Math.random() * colors.length)];
+            paragraph.style.color = randomColor;
+        });
+    }
 
-  setInterval(changeColors, 2000);
+    setInterval(changeColors, 2000);
 
     let currentPage = 1;
     let totalPages = 1;
@@ -65,12 +65,12 @@
 
     function searchCharacters() {
         const searchInput = document.getElementById('searchInput').value;
-        const apiUrl = `https://rickandmortyapi.com/api/character?name=${searchInput}&page=${currentPage}`;
+        const apiUrl = `https://rickandmortyapi.com/api/character?name=${searchInput}`;
 
         axios.get(apiUrl)
             .then(function (response) {
                 const characters = response.data.results;
-                totalPages = response.data.info.pages;
+                totalPages = Math.ceil(characters.length / cardsPerPage);
                 displayCharacters(characters);
                 updateCounts();
                 updatePagination();
@@ -145,7 +145,6 @@
             });
         });
     }
-    
 
     function openModal(character) {
         const modal = document.getElementById('characterModal');
@@ -331,6 +330,5 @@ function scrollToBottom() {
     // Chame a função getRandomCharacters no carregamento inicial da página
     getRandomCharacters();
 </script>
-<button id="scrollButton" onclick="scrollToTop()"><i class="bi bi-arrow-up"></i></button>
 </body>
 </html>
