@@ -20,9 +20,10 @@
     <input type="text" id="searchInput" placeholder="Digite sua pesquisa...">
     <button onclick="searchCharacters()"><i class="bi bi-search"></i></button>
 </div>
-<div>
+<div class="container">
     <div class="card-container" id="cardContainer"></div>
-</div>
+  </div>
+    
 <div id="pagination"></div>
 <footer class="footer">
     <ul>
@@ -209,9 +210,14 @@
     }
 
     function closeModal() {
-        const modal = document.getElementById('characterModal');
-        modal.style.display = 'none';
-    }
+    const modal = document.getElementById('characterModal');
+    const modalContent = document.querySelector('.modal-content');
+    modalContent.classList.add('fade-out');
+    setTimeout(() => {
+    modal.style.display = 'none';
+    modalContent.classList.remove('fade-out');
+  }, 300);
+}
 
     function updateCounts() {
         axios.all([
