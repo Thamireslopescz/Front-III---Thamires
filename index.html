@@ -49,7 +49,7 @@
 <script>
     function changeColors() {
         const paragraphs = document.querySelectorAll('.modal-content p');
-        const colors = ['#a9d3e9', '#f4ee74', '#736020', '#26cb37', '#000d03'];
+        const colors = ['#26cb37', '#000d03'];
 
         paragraphs.forEach(function (paragraph) {
             const randomColor = colors[Math.floor(Math.random() * colors.length)];
@@ -311,8 +311,6 @@ function scrollToBottom() {
         behavior: 'smooth'
     });
 }
-
-    // Função para obter 6 personagens aleatórios
     function getRandomCharacters() {
         const randomPage = Math.floor(Math.random() * totalPages) + 1;
         const apiUrl = `https://rickandmortyapi.com/api/character?page=${randomPage}`;
@@ -327,7 +325,6 @@ function scrollToBottom() {
             });
     }
 
-    // Chame a função getRandomCharacters no carregamento inicial da página
     getRandomCharacters();
 </script>
 </body>
